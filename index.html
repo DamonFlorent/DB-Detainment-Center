@@ -188,12 +188,12 @@ function render(list) {
     // Use placeholder if mugshot is null
     const imgSrc = (p.mugshot && p.mugshot !== "null") 
       ? p.mugshot 
-      : "https://via.placeholder.com/400x500?text=NO+MUGSHOT";
+      : "https://dnnorg.com/wp-content/uploads/2026/02/mugshot.jpeg";
 
     card.innerHTML = `
       <img src="${imgSrc}" alt="Mugshot">
       <div class="card-body">
-        <span class="badge">RELEASED</span>
+        <span class="badge">IN CHASE</span>
         <h3>${p.name}</h3>
         <p class="case">Case ${p.id}</p>
         <p><strong>Arrest Date:</strong> ${p.arrest_date}</p>
