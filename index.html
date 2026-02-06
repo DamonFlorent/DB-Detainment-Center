@@ -1,19 +1,210 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Released Arrest Records</title>
-  <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<title>Released Mugshots</title>
+
+<style>
+/* ===== GLOBAL ===== */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Inter, Arial, sans-serif;
+  background: #0b0f1a;
+  color: #e5e7eb;
+}
+
+/* ===== HEADER ===== */
+header {
+  background: #020617;
+  padding: 20px;
+  border-bottom: 1px solid #1f2937;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 22px;
+  letter-spacing: 1px;
+}
+
+header p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+/* ===== MAIN ===== */
+main {
+  max-width: 1200px;
+  margin: auto;
+  padding: 25px;
+}
+
+#search {
+  width: 100%;
+  padding: 14px;
+  background: #020617;
+  border: 1px solid #1f2937;
+  color: white;
+  border-radius: 10px;
+  font-size: 15px;
+  margin-bottom: 25px;
+}
+
+/* ===== GRID ===== */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: #020617;
+  border: 1px solid #1f2937;
+  border-radius: 14px;
+  overflow: hidden;
+  transition: transform 0.15s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+.card img {
+  width: 100%;
+  height: 230px;
+  object-fit: cover;
+  background: #020617;
+}
+
+.card-body {
+  padding: 15px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 8px;
+  background: #064e3b;
+  color: #6ee7b7;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.card h3 {
+  margin: 6px 0;
+  font-size: 18px;
+}
+
+.case {
+  font-size: 13px;
+  opacity: 0.6;
+}
+
+.card p {
+  margin: 6px 0;
+  font-size: 14px;
+}
+
+.notes {
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+/* ===== FOOTER ===== */
+footer {
+  border-top: 1px solid #1f2937;
+  padding: 20px;
+  text-align: center;
+  font-size: 12px;
+  opacity: 0.6;
+}
+</style>
 </head>
+
 <body>
 
-<h1>Released Arrest Records</h1>
-<p class="disclaimer">
-  Public record display. Arrests do not imply guilt.
-</p>
+<header>
+  <h1>RELEASED MUGSHOTS</h1>
+  <p>Public arrest records — release status only</p>
+</header>
 
-<div id="records"></div>
+<main>
+  <input id="search" placeholder="Search name or case ID…" />
+  <div id="records" class="grid"></div>
+</main>
 
-<script src="js/app.js"></script>
+<footer>
+  Arrests do not imply guilt. Only officially released mugshots are shown.
+</footer>
+
+<script>
+/************************************************
+ * CONFIG — ADD / EDIT PEOPLE HERE ONLY
+ ************************************************/
+const RELEASED_MUGSHOTS = [
+  {
+    id: "CASE-2026-001",
+    name: "John D.",
+    arrest_date: "2026-01-10",
+    arrest_time: "21:34",
+    charges: ["Burglary", "Trespassing"],
+    mugshot: "https://example.com/mugshots/john.jpg",
+    notes: "Released on bond"
+  },
+  {
+    id: "CASE-2026-002",
+    name: "Alex R.",
+    arrest_date: "2026-01-18",
+    arrest_time: "02:11",
+    charges: ["Theft Under $5,000"],
+    mugshot: "https://example.com/mugshots/alex.jpg",
+    notes: "Court date pending"
+  }
+];
+/************************************************
+ * END CONFIG
+ ************************************************/
+
+const container = document.getElementById("records");
+const search = document.getElementById("search");
+
+function render(list) {
+  container.innerHTML = "";
+  list.forEach(p => {
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <img src="${p.mugshot}" alt="Mugshot">
+      <div class="card-body">
+        <span class="badge">RELEASED</span>
+        <h3>${p.name}</h3>
+        <p class="case">Case ${p.id}</p>
+        <p><strong>Arrest Date:</strong> ${p.arrest_date}</p>
+        <p><strong>Arrest Time:</strong> ${p.arrest_time}</p>
+        <p><strong>Charges:</strong> ${p.charges.join(", ")}</p>
+        <p class="notes">${p.notes}</p>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+search.addEventListener("input", e => {
+  const q = e.target.value.toLowerCase();
+  render(
+    RELEASED_MUGSHOTS.filter(r =>
+      r.name.toLowerCase().includes(q) ||
+      r.id.toLowerCase().includes(q)
+    )
+  );
+});
+
+render(RELEASED_MUGSHOTS);
+</script>
+
 </body>
 </html>
