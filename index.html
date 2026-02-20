@@ -1,223 +1,287 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Released Mugshots</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Central Records | Law Enforcement Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #05070a;
+            --card-bg: #0f172a;
+            --accent: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.5);
+            --danger: #ef4444;
+            --success: #10b981;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --border: #1e293b;
+        }
 
-<style>
-/* ===== GLOBAL ===== */
-* { box-sizing: border-box; }
+        * { box-sizing: border-box; transition: all 0.2s ease; }
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
 
-html { font-size: 16px; }
+        /* ===== AUTH OVERLAY ===== */
+        #auth-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-dark);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
-body {
-  margin: 0;
-  font-family: Inter, Arial, sans-serif;
-  background: #0b0f1a;
-  color: #e5e7eb;
-  line-height: 1.5;
-}
+        .login-card {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(0,0,0,0.5);
+        }
 
-/* ===== HEADER ===== */
-header {
-  background: #020617;
-  padding: clamp(16px, 4vw, 24px);
-  border-bottom: 1px solid #1f2937;
-}
+        .login-card h2 { margin-bottom: 10px; color: var(--accent); }
+        .login-card input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: #020617;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: white;
+        }
 
-header h1 {
-  margin: 0;
-  font-size: clamp(18px, 3vw, 24px);
-  letter-spacing: 1px;
-}
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 10px;
+        }
 
-header p {
-  margin-top: 6px;
-  font-size: clamp(12px, 2.5vw, 14px);
-  opacity: 0.7;
-}
+        .btn-primary:hover { background: #2563eb; transform: translateY(-2px); }
 
-/* ===== MAIN ===== */
-main {
-  max-width: 1400px;
-  margin: auto;
-  padding: clamp(16px, 4vw, 32px);
-}
+        /* ===== DASHBOARD LAYOUT ===== */
+        .app-container { display: none; } /* Hidden until login */
 
-#search {
-  width: 100%;
-  padding: 14px;
-  background: #020617;
-  border: 1px solid #1f2937;
-  color: white;
-  border-radius: 12px;
-  font-size: 16px;
-  margin-bottom: 24px;
-}
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
 
-/* ===== GRID ===== */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
-  gap: 20px;
-}
+        .user-profile { display: flex; align-items: center; gap: 12px; }
+        .avatar { width: 35px; height: 35px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
-.card {
-  background: #020617;
-  border: 1px solid #1f2937;
-  border-radius: 14px;
-  overflow: hidden;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
+        main { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
 
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-}
+        /* ===== CONTROLS ===== */
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
 
-.card img {
-  width: 100%;
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
-  background: #020617;
-}
+        .search-wrapper { position: relative; }
+        .search-wrapper i { position: absolute; left: 15px; top: 15px; color: var(--text-dim); }
+        .search-wrapper input {
+            width: 100%;
+            padding: 14px 14px 14px 45px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+        }
 
-/* ===== CARD BODY ===== */
-.card-body {
-  padding: 16px;
-}
+        /* ===== RECORD CARDS ===== */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+        }
 
-.badge {
-  display: inline-block;
-  padding: 6px 12px;
-  font-size: 12px;
-  border-radius: 999px;
-  background: #064e3b;
-  color: #6ee7b7;
-  font-weight: 600;
-  margin-bottom: 10px;
-}
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            overflow: hidden;
+            position: relative;
+        }
 
-.card h3 {
-  margin: 6px 0;
-  font-size: clamp(16px, 2.5vw, 18px);
-}
+        .card:hover { border-color: var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
 
-.case {
-  font-size: 13px;
-  opacity: 0.6;
-}
+        .img-container { position: relative; width: 100%; height: 350px; background: #020617; }
+        .img-container img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(30%); }
+        
+        .status-tag {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            backdrop-filter: blur(5px);
+        }
 
-.card p {
-  margin: 6px 0;
-  font-size: 14px;
-}
+        .status-chase { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid var(--danger); }
+        .status-custody { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid var(--success); }
 
-.notes {
-  font-size: 13px;
-  opacity: 0.8;
-}
+        .card-content { padding: 20px; }
+        .card-content h2 { margin: 0; font-size: 1.4rem; letter-spacing: -0.5px; }
+        .case-number { color: var(--accent); font-family: monospace; font-size: 0.9rem; margin-bottom: 15px; display: block; }
+        
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; }
+        .info-label { color: var(--text-dim); }
 
-/* ===== FOOTER ===== */
-footer {
-  border-top: 1px solid #1f2937;
-  padding: 18px;
-  text-align: center;
-  font-size: 12px;
-  opacity: 0.6;
-}
+        .charge-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 15px; }
+        .pill { background: #1e293b; padding: 4px 10px; border-radius: 4px; font-size: 11px; color: var(--text-dim); }
 
-/* ===== MOBILE REFINEMENTS ===== */
-@media (max-width: 480px) {
-  header h1 { letter-spacing: 0.5px; }
-  .card-body { padding: 14px; }
-  .badge { font-size: 11px; }
-}
-
-/* ===== LARGE SCREENS ===== */
-@media (min-width: 1600px) { main { max-width: 1600px; } }
-</style>
+    </style>
 </head>
-
 <body>
 
-<header>
-  <h1>RELEASED MUGSHOTS</h1>
-  <p>Public arrest records — release status only</p>
-</header>
+    <div id="auth-overlay">
+        <div class="login-card">
+            <i class="fa-solid fa-shield-halved" style="font-size: 3rem; color: var(--accent); margin-bottom: 20px;"></i>
+            <h2>Database Access</h2>
+            <p style="color: var(--text-dim); font-size: 0.9rem;">Authorized Personnel Only</p>
+            <input type="text" id="username" placeholder="Badge Number / Username">
+            <input type="password" id="password" placeholder="Access Code">
+            <button class="btn-primary" onclick="login()">INITIALIZE SESSION</button>
+        </div>
+    </div>
 
-<main>
-  <input id="search" placeholder="Search name or case ID…" />
-  <div id="records" class="grid"></div>
-</main>
+    <div class="app-container" id="app">
+        <header>
+            <div class="logo">
+                <h1 style="margin:0; font-size: 1.2rem; font-weight: 900;">RECORDS<span style="color: var(--accent);">SYSTEM</span></h1>
+            </div>
+            <div class="user-profile">
+                <span id="user-display" style="font-size: 0.9rem; font-weight: 600;">Officer Smith</span>
+                <div class="avatar"><i class="fa-solid fa-user-tie"></i></div>
+            </div>
+        </header>
 
-<footer>
-  Official Mugshots will only be released, Not all mugshots will be on here.<br>
-  Development Status: v1.2.1
-</footer>
+        <main>
+            <div class="controls">
+                <div class="search-wrapper">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="db-search" placeholder="Search by name, charge, or case ID...">
+                </div>
+                <button class="btn-primary" style="width: auto;" onclick="alert('Feature coming soon: Admin Panel')">
+                    <i class="fa-solid fa-plus"></i> NEW ENTRY
+                </button>
+            </div>
 
-<script>
-/************************************************
- * CONFIG — ADD / EDIT PEOPLE HERE ONLY
- ************************************************/
-const RELEASED_MUGSHOTS = [
-  {
-    id: "CASE-2026-001",
-    name: "Mohomed B.",
-    arrest_date: "Not Captured",
-    arrest_time: "—",
-    charges: ["Immigrant, Assault, Agent Assault."],
-    mugshot: "null", // will use fallback
-    notes: "Suspect currently in active pursuit"
-  }
-];
-/************************************************
- * END CONFIG
- ************************************************/
+            <div id="record-grid" class="grid">
+                </div>
+        </main>
+    </div>
 
-const container = document.getElementById("records");
-const search = document.getElementById("search");
+    <script>
+        const MOCK_DATA = [
+            {
+                id: "2026-AR-992",
+                name: "Mohomed B.",
+                status: "ACTIVE PURSUIT",
+                date: "PENDING",
+                time: "N/A",
+                charges: ["Illegal Entry", "Assault", "Felony Evasion"],
+                img: "https://dnnorg.com/wp-content/uploads/2026/02/mugshot.jpeg",
+                notes: "Considered armed and dangerous."
+            },
+            {
+                id: "2026-AR-104",
+                name: "Sarah Jenkins",
+                status: "IN CUSTODY",
+                date: "Feb 18, 2026",
+                time: "02:45 AM",
+                charges: ["Grand Theft Auto", "Reckless Driving"],
+                img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1887&auto=format&fit=crop",
+                notes: "Processing complete."
+            }
+        ];
 
-function render(list) {
-  container.innerHTML = "";
-  list.forEach(p => {
-    const card = document.createElement("div");
-    card.className = "card";
+        function login() {
+            const user = document.getElementById('username').value;
+            if(user) {
+                document.getElementById('user-display').innerText = `Unit: ${user}`;
+                document.getElementById('auth-overlay').style.display = 'none';
+                document.getElementById('app').style.display = 'block';
+                renderRecords(MOCK_DATA);
+            } else {
+                alert("Please enter credentials");
+            }
+        }
 
-    // Use placeholder if mugshot is null
-    const imgSrc = (p.mugshot && p.mugshot !== "null") 
-      ? p.mugshot 
-      : "https://dnnorg.com/wp-content/uploads/2026/02/mugshot.jpeg";
+        function renderRecords(data) {
+            const grid = document.getElementById('record-grid');
+            grid.innerHTML = data.map(record => `
+                <div class="card">
+                    <div class="img-container">
+                        <span class="status-tag ${record.status === 'ACTIVE PURSUIT' ? 'status-chase' : 'status-custody'}">
+                            ${record.status}
+                        </span>
+                        <img src="${record.img}" alt="Subject">
+                    </div>
+                    <div class="card-content">
+                        <span class="case-number">#${record.id}</span>
+                        <h2>${record.name}</h2>
+                        
+                        <div style="margin-top: 15px;">
+                            <div class="info-row">
+                                <span class="info-label">Arrest Date</span>
+                                <span>${record.date}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Arrest Time</span>
+                                <span>${record.time}</span>
+                            </div>
+                        </div>
 
-    card.innerHTML = `
-      <img src="${imgSrc}" alt="Mugshot">
-      <div class="card-body">
-        <span class="badge">IN CHASE</span>
-        <h3>${p.name}</h3>
-        <p class="case">Case ${p.id}</p>
-        <p><strong>Arrest Date:</strong> ${p.arrest_date}</p>
-        <p><strong>Arrest Time:</strong> ${p.arrest_time}</p>
-        <p><strong>Charges:</strong> ${p.charges.join(", ")}</p>
-        <p class="notes">${p.notes}</p>
-      </div>
-    `;
-    container.appendChild(card);
-  });
-}
+                        <div class="charge-pills">
+                            ${record.charges.map(c => `<span class="pill">${c}</span>`).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
 
-search.addEventListener("input", e => {
-  const q = e.target.value.toLowerCase();
-  render(
-    RELEASED_MUGSHOTS.filter(r =>
-      r.name.toLowerCase().includes(q) ||
-      r.id.toLowerCase().includes(q)
-    )
-  );
-});
-
-render(RELEASED_MUGSHOTS);
-</script>
-
+        // Search logic
+        document.getElementById('db-search').addEventListener('input', (e) => {
+            const val = e.target.value.toLowerCase();
+            const filtered = MOCK_DATA.filter(r => 
+                r.name.toLowerCase().includes(val) || 
+                r.id.toLowerCase().includes(val) ||
+                r.charges.some(c => c.toLowerCase().includes(val))
+            );
+            renderRecords(filtered);
+        });
+    </script>
 </body>
 </html>
